@@ -9,34 +9,44 @@ need root privvileges to bind ports below 1024.
 
 """
 
+# setup paths
 import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), 'etc'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib', 'web'))
 
+# import modules
 import web, config, json
 import datetime
 import time
 import tempfile
 import sys, logging
 from wsgilog import WsgiLog
+from cgi import escape
 
+## global variables ############################################################
+
+# url to class mapping
 urls = (
   '/', 'index',
   '/env', 'env',
 )
 
+# default session values
 session_default = {
 	"user": None
 }
 
-# allow to pass a custom port/ip into the application
+## webpy extensions ############################################################
+
 class service(web.application):
+	""" allow to pass a custom port/ip into the application """
 	def run(self, port=8080, ip='0.0.0.0', *middleware):
 		func = self.wsgifunc(*middleware)
 		return web.httpserver.runsimple(func, (ip, port))
 
 class Log(WsgiLog):
+	""" extend logger, logging to file in var/ """
 	def __init__(self, application):
 		WsgiLog.__init__(
 			self,
@@ -50,25 +60,30 @@ class Log(WsgiLog):
 			#backups = "1000"
 		)
 
+## page methods ################################################################
 class index:
+	""" Serve index page """
 	def GET(self):
 		render = web.template.render('template')
 		return render.index()
 		#return out
 
 class env:
+	""" display environment variables """
 	def GET(self):
 		out = {}
 		for property, value in vars(web.ctx).iteritems():
 			out[property] = value
 		
-		render = web.template.render('template', globals={'is_dict': is_dict})
+		render = web.template.render('template', globals={'is_dict': is_dict, 'escape': escape})
 		return render.env(out)
 		#return out
 
 def is_dict(d):
+	""" additional template function, registered with web.template.render """
 	return type(d) is dict
 
+## main function ###############################################################
 if __name__ == "__main__":
 
 	# redirect webserver logs to file
@@ -78,15 +93,15 @@ if __name__ == "__main__":
 	
 	app = service(urls, globals())
 	
-	# session setup, make sure to call it only one if in debug mode
+	# session setup, make sure to call it only once if in debug mode
 	if web.config.get('_session') is None:
 		web.config.session_parameters['cookie_name'] = config.session_name
-		web.config.session_parameters['cookie_domain'] = None
 		web.config.session_parameters['timeout'] = config.session_timeout,
-		web.config.session_parameters['ignore_expiry'] = True
-		web.config.session_parameters['ignore_change_ip'] = False
 		web.config.session_parameters['secret_key'] = config.session_salt
-		web.config.session_parameters['expired_message'] = 'Session expired'
+		web.config.session_parameters['cookie_domain'] = config.session_cookie_domain
+		web.config.session_parameters['ignore_expiry'] = config.session_ignore_expiry
+		web.config.session_parameters['ignore_change_ip'] = config.session_ignore_change_ip
+		web.config.session_parameters['expired_message'] = config.session_expired_message
 	
 		temp = tempfile.mkdtemp(dir=config.session_dir, prefix='session_')
 		web.sess = web.session.Session(

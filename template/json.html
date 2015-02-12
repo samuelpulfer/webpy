@@ -11,7 +11,9 @@ $def with ()
 			Arial, Sans-serif;
 	}
 	input[type=number] {text-align: right;}
-	#console {margin-top: 1em;}
+	#console {
+		margin-top: 1em;
+	}
 	div span.label {
 		padding-right: 1em; 
 		font-weight: bold;
@@ -24,6 +26,16 @@ $def with ()
 		font-size: 0.8em;
 		padding: 0.5em;
 		background-color: black;
+	}
+	
+	fieldset {float: left;}
+	
+	#break {clear: both;}
+	
+	#container {height: 6.5em;}
+	#container>fieldset {
+		height: inherit;
+		width: 280px;
 	}
 	</style>
 	
@@ -57,25 +69,21 @@ $def with ()
 		$$.ajax({
 			url: '/json',
 			type: 'POST',
-			contentType: "application/json; charset=utf-8",
-			dataType: 'jsonp',
+			contentType: "application/x-www-form-urlencoded; charset=utf-8",
+			dataType: 'json',
 			
 			data: params,
 			
 			error: function(xhr, str, str) {
-				$$('#info').html('Communication error: '+xhr.status+' '+str);
+				document.getElementById('info').innerHTML = 'Communication error: '+xhr.status+' '+str;
 			},
 			
 			success: function(data) {
-				$$('#info').html('<p>Success</p>');
-				console.log(data)
-				/*
-				var $$title = $$('<h1>').text(data.talks[0].talk_title);
-				var $$description = $$('<p>').text(data.talks[0].talk_description);
-				$$('#info')
-					 .append($$title)
-					 .append($$description);
-				*/
+				document.getElementById('info').innerHTML = 'Success';
+				//console.log(data)
+				
+				document.getElementById("result").innerHTML = 
+					data.i1 + " <em>and</em> " + data.i2 + " <em>equals</em> " + data.res;
 			}
 			
 		});
@@ -85,23 +93,37 @@ $def with ()
 <body>
 
 <h1>Add two numbers</h1>
-<form method="post" action="/json" id="numbers_form">
-	<table>
-		<tr>
-			<td>integer 1</td>
-			<td><input type="number" name="int1" id="int1" min="0" max="1024" step="1" value="5"/></td>
-		</tr>
-		<tr>
-			<td>integer 2</td>
-			<td><input type="number" name="int2" id="int2" min="0" max="1024" step="1" value="220"/></td>
-		</tr>
-	</table>
-	<button type="submit" onclick="send_form(this); return false;">Send Values to Server »</button>
-	<div id="console">
-		<span class="label">Info: </span>
-		<span id="info">N/A</span>
-	</div>
-</form>
+
+<div id="container">
+	<fieldset>
+		<legend>Input</legend>
+		<form method="post" action="/json" id="numbers_form">
+			<table>
+				<tr>
+					<td>integer 1</td>
+					<td><input type="number" name="int1" id="int1" min="0" max="1024" step="1" value="5"/></td>
+				</tr>
+				<tr>
+					<td>integer 2</td>
+					<td><input type="number" name="int2" id="int2" min="0" max="1024" step="1" value="220"/></td>
+				</tr>
+			</table>
+			<button type="submit" onclick="send_form(this); return false;">Send Values to Server »</button>
+		</form>
+	</fieldset>
+	
+	<fieldset>
+		<legend>Result</legend>
+		<div id="result">
+		</div>
+	</fieldset>
+</div>
+<div id="break"></div>
+
+<div id="console">
+	<span class="label">Network Status: </span>
+	<span id="info">N/A</span>
+</div>
 
 <hr size="1"/>
 <img src="http://vanilla-js.com/assets/button.png" alt="100% Vanilla JS Compatible"

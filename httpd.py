@@ -86,7 +86,18 @@ class json:
 		render = web.template.render('template')
 		return render.json()
 		#return out
-
+	
+	def POST(self):
+		post = web.input()
+		web.header('Content-Type', 'application/json')
+		try:
+			i1 = int(post.int1)
+			i2 = int(post.int2)
+			res = i1 + i2
+		except:
+			return "{error: 1}"
+		
+		return '{"i1": '+str(i1)+', "i2": '+str(i2)+', "res": '+str(res)+'}'
 
 def is_dict(d):
 	""" additional template function, registered with web.template.render """

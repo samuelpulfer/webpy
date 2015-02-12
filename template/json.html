@@ -1,0 +1,111 @@
+$def with ()
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>json</title>
+	
+	<style type="text/css">
+	body {
+		font-family: Verdana, "Bitstream Vera Sans", "DejaVu Sans", Tahoma, Geneva, 
+			Arial, Sans-serif;
+	}
+	input[type=number] {text-align: right;}
+	#console {margin-top: 1em;}
+	div span.label {
+		padding-right: 1em; 
+		font-weight: bold;
+	}
+	
+	#console {
+		color: lime;
+		border: 1px inset #aaa;
+		font-family: courier, fixed;
+		font-size: 0.8em;
+		padding: 0.5em;
+		background-color: black;
+	}
+	</style>
+	
+	<script type="application/javascript" src="static/jquery-2.1.3.min.js"></script>
+	<script type="application/javascript">
+	function send_form(obj) {
+		// get data from the form
+		var int1 = parseInt(document.getElementById("int1").value);
+		var int2 = parseInt(document.getElementById("int2").value);
+		
+		// display the values gathered fro mthe form
+		console.log(int1 + " " + int2);
+		
+		// user input sanity check
+		if (isNaN(int1)) {
+			alert("«int1» is not a number");
+			return false;
+		}
+		
+		if (isNaN(int2)) {
+			alert("«int2» is not a number");
+			return false;
+		}
+		
+		// create a json request object
+		var params = {
+			int1: int1,
+			int2: int2
+		}
+		
+		$$.ajax({
+			url: '/json',
+			type: 'POST',
+			contentType: "application/json; charset=utf-8",
+			dataType: 'jsonp',
+			
+			data: params,
+			
+			error: function(xhr, str, str) {
+				$$('#info').html('Communication error: '+xhr.status+' '+str);
+			},
+			
+			success: function(data) {
+				$$('#info').html('<p>Success</p>');
+				console.log(data)
+				/*
+				var $$title = $$('<h1>').text(data.talks[0].talk_title);
+				var $$description = $$('<p>').text(data.talks[0].talk_description);
+				$$('#info')
+					 .append($$title)
+					 .append($$description);
+				*/
+			}
+			
+		});
+	}
+	</script>
+</head>
+<body>
+
+<h1>Add two numbers</h1>
+<form method="post" action="/json" id="numbers_form">
+	<table>
+		<tr>
+			<td>integer 1</td>
+			<td><input type="number" name="int1" id="int1" min="0" max="1024" step="1" value="5"/></td>
+		</tr>
+		<tr>
+			<td>integer 2</td>
+			<td><input type="number" name="int2" id="int2" min="0" max="1024" step="1" value="220"/></td>
+		</tr>
+	</table>
+	<button type="submit" onclick="send_form(this); return false;">Send Values to Server »</button>
+	<div id="console">
+		<span class="label">Info: </span>
+		<span id="info">N/A</span>
+	</div>
+</form>
+
+<hr size="1"/>
+<img src="http://vanilla-js.com/assets/button.png" alt="100% Vanilla JS Compatible"
+     style="vertical-align: middle"/>
+<small>100% Vanilla JS Compatible; for a double doze of pimpin!</small>
+</body>
+</html>

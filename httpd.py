@@ -30,6 +30,7 @@ from cgi import escape
 urls = (
   '/', 'index',
   '/env', 'env',
+  '/json', 'json',
 )
 
 # default session values
@@ -78,6 +79,14 @@ class env:
 		render = web.template.render('template', globals={'is_dict': is_dict, 'escape': escape})
 		return render.env(out)
 		#return out
+
+class json:
+	""" Serve json example page """
+	def GET(self):
+		render = web.template.render('template')
+		return render.json()
+		#return out
+
 
 def is_dict(d):
 	""" additional template function, registered with web.template.render """

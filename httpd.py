@@ -14,6 +14,7 @@ import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), 'etc'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib', 'web'))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'lib', 'wsgilog'))
 
 # import modules
 import web, config, json

@@ -32,6 +32,7 @@ urls = (
   '/', 'index',
   '/env', 'env',
   '/json', 'json',
+  '/image', 'image'
 )
 
 # default session values
@@ -69,6 +70,17 @@ class index:
 		render = web.template.render('template')
 		return render.index()
 		#return out
+
+class image:
+	""" Serve image """
+	def GET(self):
+		web.header('Content-Type', 'image/png')
+		fp = open("static/py.png", "r")
+		out = fp.read()
+		web.header('Content-Length', len(out))
+		fp.close()
+		
+		return out
 
 class env:
 	""" display environment variables """

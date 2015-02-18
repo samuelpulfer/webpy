@@ -74,13 +74,18 @@ class index:
 class image:
 	""" Serve image """
 	def GET(self):
+		filename = "static/py.png"
 		web.header('Content-Type', 'image/png')
-		fp = open("static/py.png", "r")
-		out = fp.read()
-		web.header('Content-Length', len(out))
+		web.header('Content-Length', os.path.getsize(filename))
+		import datetime
+		t = datetime.datetime.fromtimestamp(os.path.getmtime(filename))
+		#strdate = t.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
+		web.http.lastmodified(t)
+		fp = open(filename, "r")
+		yield fp.read()
 		fp.close()
 		
-		return out
+		return
 
 class env:
 	""" display environment variables """

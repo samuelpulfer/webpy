@@ -24,6 +24,7 @@ import tempfile
 import sys, logging
 from wsgilog import WsgiLog
 from cgi import escape
+import auth
 
 ## global variables ############################################################
 
@@ -40,6 +41,7 @@ urls = (
 session_default = {
 	"user": None
 }
+web_session = None
 
 ## webpy extensions ############################################################
 
@@ -65,15 +67,31 @@ class Log(WsgiLog):
 		)
 
 ## page methods ################################################################
-class index:
+
+class authenticated_user(object):
+	def __init__(self):
+		""" this is the base class for al methods, that need authentication
+		
+		authentication works as follows:
+		- check user identity against ldap
+		- if user exists, check if we have him/her in our userdatabase
+			- if not add it
+		- fetch additional user data from database
+		- setup session with gathered information
+		
+		"""
+		
+		
+
+class index(authenticated_user):
 	""" Serve index page """
 	def GET(self):
 		render = web.template.render('template')
 		return render.index()
 		#return out
 
-class image:
-	""" Serve image """
+class image():
+	""" Serve image, this method requires not authentication """
 	def GET(self):
 		filename = "static/py.png"
 		web.header('Content-Type', 'image/png')
@@ -88,7 +106,7 @@ class image:
 		
 		return
 
-class env:
+class env(authenticated_user):
 	""" display environment variables """
 	def GET(self):
 		out = {}
@@ -99,7 +117,7 @@ class env:
 		return render.env(out)
 		#return out
 
-class json1:
+class json1(authenticated_user):
 	""" Serve json example page (using JQuery)"""
 	def GET(self):
 		render = web.template.render('template')
@@ -118,7 +136,7 @@ class json1:
 		
 		return '{"error": 0, "i1": '+str(i1)+', "i2": '+str(i2)+', "res": '+str(res)+'}'
 		
-class json2:
+class json2(authenticated_user):
 	""" Serve json example page (100% VanillaJS)"""
 	def GET(self):
 		render = web.template.render('template')
@@ -149,6 +167,14 @@ if __name__ == "__main__":
 	#sys.stderr = weblog
 	#sys.stdout = weblog
 	
+	auth.init(
+		authdn = "CN=MUANA,OU=GenericMove,OU=Users,OU=USB,DC=ms,DC=uhbs,DC=ch",
+		authpw = "anaana",
+		baseDN = "ou=USB,dc=ms,dc=uhbs,dc=ch",
+		host = "ms.uhbs.ch",
+	)
+
+	
 	app = service(urls, globals())
 	
 	# session setup, make sure to call it only once if in debug mode
@@ -162,18 +188,18 @@ if __name__ == "__main__":
 		web.config.session_parameters['expired_message'] = config.session_expired_message
 	
 		temp = tempfile.mkdtemp(dir=config.session_dir, prefix='session_')
-		web.sess = web.session.Session(
+		web_session = web.session.Session(
 			app, 
 			web.session.DiskStore(temp), 
 			initializer = session_default
 		)
 	else:
-		web.sess = web.config._session
+		web_session = web.config._session
 		try:
-			web.sess["pid"]
+			web_session["pid"]
 		except:
-			web.sess = session_default
-	#web.sess["pid"] += 1
+			web_session = session_default
+	#web_session["pid"] += 1
 	#print "starting ..."
 	#app.add_processor(web.loadhook(loadhook))
 	#app.add_processor(web.unloadhook(unloadhook))

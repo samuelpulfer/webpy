@@ -42,6 +42,12 @@
 					log_status('Response contains an error.')
 				}
 				
+				if (data.success == true)
+					// reload page
+					document.location.href = document.location.href
+				
+				
+				log_status("Unknown username and/or password, try again.")
 				return
 			}
 		}
@@ -53,12 +59,11 @@
 
 <body>
 
+<div id="info"></div>
 <form>
 username: <input type="text" name="username" id="username" value=""/> <br/>
 password: <input type="password" name="password" id="password" value=""/> <br/>
 <input type="button" onclick="auth()" value="Login"/>
-
-<div id="info"></div>
 </form>
 
 </body>

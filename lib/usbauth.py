@@ -54,7 +54,6 @@ class usbauth(object):
 	
 	
 	""" lookup and authentication library """
-	
 	@property
 	def lastobj(self):
 		return self.__lastobj
@@ -93,6 +92,10 @@ class usbauth(object):
 
 	def auth(self, username, pw):
 		""" check password, retruns True on success """
+		
+		if not pw:
+			return False
+		
 		try:
 			userdn = self.lookup(username)
 			if not userdn:

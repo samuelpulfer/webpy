@@ -144,23 +144,35 @@ class login(webctx):
 		
 		if check:
 			row = cur.fetchone()
-			authdb.close()
-			web.debug(row)
-			web_session = session_default
-			web_session["uid"] = row[0]
-			web_session["user"] = username
+			if row:
+				authdb.close()
+				web.debug(row)
+				web_session = session_default
+				web_session["uid"] = row[0]
+				web_session["user"] = username
 			
-			# if we found one, exit
-			return '{"success": true}'
+				# if we found one, exit
+				return '{"success": true}'
 		
 		authdb.close()
 		
 		# if not found check against ldap
+		usbauth.init(
+			authdn = "CN=MUANA,OU=GenericMove,OU=Users,OU=USB,DC=ms,DC=uhbs,DC=ch",
+			authpw = "anaana",
+			baseDN = "ou=USB,dc=ms,dc=uhbs,dc=ch",
+			host = "ms.uhbs.ch",
+		)
 		
+		emp = usbauth.check(username, password)
+		if (emp and emp["lockoutTime"] == None):
+			web_session = session_default
+			web_session["uid"] = emp["employeeNumber"]
+			web_session["user"] = username
+			web_session["email"] = emp["email"]
+			return '{"success": true}'
 		
-		
-		return '{"success": true}'
-
+		return '{"success": false}'
 
 class index(webctx):
 	""" Serve index page """

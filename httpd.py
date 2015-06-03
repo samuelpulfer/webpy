@@ -25,6 +25,8 @@ import sys, logging
 from wsgilog import WsgiLog
 from cgi import escape
 import usbauth
+import hashlib
+import sqlite3
 
 ## global variables ############################################################
 
@@ -96,6 +98,7 @@ class webctx(object):
 		
 		"""
 		web.debug("auth_check")
+		web.debug(web_session)
 		
 		# check if we have a valid session
 		if web_session != None and web_session["uid"] > 0:
@@ -108,17 +111,17 @@ class webctx(object):
 			
 		# check if the user has submitted credentials
 		return None
-		
-		
+	
 	def render(self):
 		return web.template.render('template', globals={
 			'is_dict': is_dict, 
 			'escape': escape
 		})
-		
 
 class login(webctx):
 	def POST(self):
+		global web_session
+		
 		data = web.data()
 		credentials = json.loads(data)
 		#web.debug(credentials)
@@ -126,10 +129,34 @@ class login(webctx):
 		username = credentials["username"]
 		password = credentials["password"]
 		
-		web.debug(username)
-		web.debug(password)
+		#web.debug(username)
+		#web.debug(password)
 		
 		# check credentials against database
+		pwhash = hashlib.md5(password).hexdigest()
+		web.debug(pwhash)
+		authdb = sqlite3.connect('etc/user.db')
+		cur = authdb.cursor()
+		sql = 'SELECT id FROM user WHERE username=? AND password=?'
+		web.debug(sql)
+		check = cur.execute(sql, (username, pwhash))
+		web.debug(str(check) + " " + str(cur.rowcount))
+		
+		if check:
+			row = cur.fetchone()
+			authdb.close()
+			web.debug(row)
+			web_session = session_default
+			web_session["uid"] = row[0]
+			web_session["user"] = username
+			
+			# if we found one, exit
+			return '{"success": true}'
+		
+		authdb.close()
+		
+		# if not found check against ldap
+		
 		
 		
 		return '{"success": true}'
@@ -141,7 +168,7 @@ class index(webctx):
 		if not self.auth_check():
 			return self.render().login()
 			
-		web.debug(auth_check)
+		#web.debug(auth_check)
 		#web.debug(web_session)
 		
 		render = web.template.render('template')

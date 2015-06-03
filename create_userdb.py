@@ -38,10 +38,10 @@ def create(username, password):
 	global con
 	global cur
 	
-	get_con()
-	cur.execute("INSERT INTO user (username, password) VALUES ('%s', '%s')") % \
-	           (username, hashlib.md5(password).hexdigest())
-	
+	get_conn()
+	cur.execute("INSERT INTO user (username, password) VALUES ('%s', '%s')" % \
+	           (username, hashlib.md5(password).hexdigest()))
+	con.commit()
 
 """
 except lite.Error, e:
@@ -54,3 +54,7 @@ finally:
 	if con:
 		con.close()
 """
+
+
+if __name__ == "__main__":
+	create(sys.argv[1], sys.argv[2])

@@ -43,7 +43,8 @@ urls = (
 # default session values
 session_default = {
 	"uid": -1,
-	"user": None
+	"user": None,
+	"email": None
 }
 web_session = None
 
@@ -87,18 +88,7 @@ class webctx(object):
 	no_auth = False
 	__authenticated = False
 	def auth_check(self):
-		""" this is the base class for all methods, that need authentication
-		
-		authentication works as follows:
-		- check user identity against ldap
-		- if user exists, check if we have him/her in our userdatabase
-			- if not add it
-		- fetch additional user data from database
-		- setup session with gathered information
-		
-		"""
-		web.debug("auth_check")
-		web.debug(web_session)
+		""" check if user is authenticated """
 		
 		# check if we have a valid session
 		if web_session != None and web_session["uid"] > 0:
@@ -119,18 +109,16 @@ class webctx(object):
 		})
 
 class login(webctx):
+	""" authenticate user """
 	def POST(self):
 		global web_session
 		
+		# read posted json data
 		data = web.data()
 		credentials = json.loads(data)
-		#web.debug(credentials)
 		
 		username = credentials["username"]
 		password = credentials["password"]
-		
-		#web.debug(username)
-		#web.debug(password)
 		
 		# check credentials against database
 		pwhash = hashlib.md5(password).hexdigest()
@@ -262,13 +250,6 @@ if __name__ == "__main__":
 	#weblog = open(config.web_logfile, "ab")
 	#sys.stderr = weblog
 	#sys.stdout = weblog
-	
-	usbauth.init(
-		authdn = "CN=MUANA,OU=GenericMove,OU=Users,OU=USB,DC=ms,DC=uhbs,DC=ch",
-		authpw = "anaana",
-		baseDN = "ou=USB,dc=ms,dc=uhbs,dc=ch",
-		host = "ms.uhbs.ch",
-	)
 	
 	app = service(urls, globals())
 	

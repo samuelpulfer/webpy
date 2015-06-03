@@ -258,7 +258,7 @@ If username and password is provided, we do an authentication.
 Exit code 
 	  0 success
 	  1 not found
-	  2 wrong password. 
+	  2 wrong username/password. 
 	127 argument error
 """
 

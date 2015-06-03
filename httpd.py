@@ -24,7 +24,7 @@ import tempfile
 import sys, logging
 from wsgilog import WsgiLog
 from cgi import escape
-import auth
+import usbauth
 
 ## global variables ############################################################
 
@@ -34,11 +34,13 @@ urls = (
   '/env', 'env',
   '/json1', 'json1',
   '/json2', 'json2',
-  '/image', 'image'
+  '/image', 'image',
+  '/login', 'login'
 )
 
 # default session values
 session_default = {
+	"uid": -1,
 	"user": None
 }
 web_session = None
@@ -66,11 +68,24 @@ class Log(WsgiLog):
 			#backups = "1000"
 		)
 
+class hooks(object):
+	@staticmethod
+	def load():
+		web.debug("Loadhook")
+		#return "BEGIN"
+	
+	@staticmethod
+	def unload():
+		web.debug("Unloadhook")
+		#return "ENDE"
+
 ## page methods ################################################################
 
-class authenticated_user(object):
-	def __init__(self):
-		""" this is the base class for al methods, that need authentication
+class webctx(object):
+	no_auth = False
+	__authenticated = False
+	def auth_check(self):
+		""" this is the base class for all methods, that need authentication
 		
 		authentication works as follows:
 		- check user identity against ldap
@@ -80,17 +95,61 @@ class authenticated_user(object):
 		- setup session with gathered information
 		
 		"""
+		web.debug("auth_check")
 		
+		# check if we have a valid session
+		if web_session != None and web_session["uid"] > 0:
+			self.__authenticated = True
+			return True
+		
+		# authentication for this request not required
+		if self.no_auth == True:
+			return True
+			
+		# check if the user has submitted credentials
+		return None
+		
+		
+	def render(self):
+		return web.template.render('template', globals={
+			'is_dict': is_dict, 
+			'escape': escape
+		})
 		
 
-class index(authenticated_user):
+class login(webctx):
+	def POST(self):
+		data = web.data()
+		credentials = json.loads(data)
+		#web.debug(credentials)
+		
+		username = credentials["username"]
+		password = credentials["password"]
+		
+		web.debug(username)
+		web.debug(password)
+		
+		# check credentials against database
+		
+		
+		return '{"success": true}'
+
+
+class index(webctx):
 	""" Serve index page """
 	def GET(self):
+		if not self.auth_check():
+			return self.render().login()
+			
+		web.debug(auth_check)
+		#web.debug(web_session)
+		
 		render = web.template.render('template')
 		return render.index()
 		#return out
 
-class image():
+class image(webctx):
+	no_auth = True
 	""" Serve image, this method requires not authentication """
 	def GET(self):
 		filename = "static/py.png"
@@ -106,22 +165,20 @@ class image():
 		
 		return
 
-class env(authenticated_user):
+class env(webctx):
 	""" display environment variables """
 	def GET(self):
 		out = {}
 		for property, value in vars(web.ctx).iteritems():
 			out[property] = value
 		
-		render = web.template.render('template', globals={'is_dict': is_dict, 'escape': escape})
-		return render.env(out)
-		#return out
+		return self.render().env(out)
 
-class json1(authenticated_user):
+class json1(webctx):
 	""" Serve json example page (using JQuery)"""
 	def GET(self):
-		render = web.template.render('template')
-		return render.json1()
+		#render = web.template.render('template')
+		return self.render().json1()
 		#return out
 	
 	def POST(self):
@@ -136,7 +193,7 @@ class json1(authenticated_user):
 		
 		return '{"error": 0, "i1": '+str(i1)+', "i2": '+str(i2)+', "res": '+str(res)+'}'
 		
-class json2(authenticated_user):
+class json2(webctx):
 	""" Serve json example page (100% VanillaJS)"""
 	def GET(self):
 		render = web.template.render('template')
@@ -167,13 +224,12 @@ if __name__ == "__main__":
 	#sys.stderr = weblog
 	#sys.stdout = weblog
 	
-	auth.init(
+	usbauth.init(
 		authdn = "CN=MUANA,OU=GenericMove,OU=Users,OU=USB,DC=ms,DC=uhbs,DC=ch",
 		authpw = "anaana",
 		baseDN = "ou=USB,dc=ms,dc=uhbs,dc=ch",
 		host = "ms.uhbs.ch",
 	)
-
 	
 	app = service(urls, globals())
 	
@@ -196,12 +252,20 @@ if __name__ == "__main__":
 	else:
 		web_session = web.config._session
 		try:
-			web_session["pid"]
+			web_session["uid"]
 		except:
 			web_session = session_default
+	
+	app.add_processor(web.loadhook(hooks.load))
+	app.add_processor(web.unloadhook(hooks.unload))
+	
+	web.config.debug = True
+	
 	#web_session["pid"] += 1
 	#print "starting ..."
 	#app.add_processor(web.loadhook(loadhook))
 	#app.add_processor(web.unloadhook(unloadhook))
+	#app.run(config.port, "0.0.0.0")
 	app.run(config.port, "0.0.0.0", Log)
-	
+
+

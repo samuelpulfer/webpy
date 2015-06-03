@@ -61,14 +61,28 @@ class usbauth(object):
 	
 	# configuration
 	baseauth = {
-		"dn": "CN=MUANA,OU=GenericMove,OU=Users,OU=USB,DC=ms,DC=uhbs,DC=ch",
-		"pw": "anaana"
+		"dn": None,
+		"pw": None
 	}
-	baseDN = "ou=USB,dc=ms,dc=uhbs,dc=ch"
+	baseDN = None
 	search_property = "sAMAccountName"
-	host = "ms.uhbs.ch"
+	host = None
 	
-	def __init__(self):
+	def __init__(self, authdn=None, authpw=None, baseDN=None, host=None):
+		""" setup ldap connection
+		
+			authdn  the distinguished name used for simple authentication
+			authpw  password for simple authentication
+			baseDN  Search base (using subtree search)
+			host    LDAP hostname or IP
+		"""
+		if (authdn): self.baseauth["dn"] = authdn
+		if (authpw): self.baseauth["pw"] = authpw
+
+		if (baseDN): self.baseDN = baseDN
+		if (host): self.host = host
+		
+		
 		self.__conn = None
 		self.__lastobj = None
 		
@@ -212,6 +226,14 @@ class usbauth(object):
 		
 		return a.info(a.__lastobj)
 
+def init(authdn=None, authpw=None, baseDN=None, host=None):
+		
+		if (authdn): usbauth.baseauth["dn"] = authdn
+		if (authpw): usbauth.baseauth["pw"] = authpw
+
+		if (baseDN): usbauth.baseDN = baseDN
+		if (host): usbauth.host = host
+
 def check(username, pw):
 	return usbauth.main(username, pw)
 
@@ -239,7 +261,15 @@ Exit code
 
 	# check how many arguments we've got.	
 	
-	# llokup user
+	# setup ldap connection
+	init(
+		authdn = "CN=MUANA,OU=GenericMove,OU=Users,OU=USB,DC=ms,DC=uhbs,DC=ch",
+		authpw = "anaana",
+		baseDN = "ou=USB,dc=ms,dc=uhbs,dc=ch",
+		host = "ms.uhbs.ch",
+	)
+	
+	# lokup user
 	if len(sys.argv) == 2:
 		emp = lookup(sys.argv[1])
 		if (emp == None):
@@ -269,11 +299,4 @@ Exit code
 		print usage
 	
 	sys.exit(127)
-	
-	# authenticate a user
-	#emp = check("muana", "anaana")
-	
-	# lookup eamil
-	#emp = lookup_email(sys.argv[1])
-	#print emp
 

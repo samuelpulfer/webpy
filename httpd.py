@@ -46,8 +46,12 @@ session_default = {
 	"user": None,
 	"email": None
 }
-web_session = None
 
+try:
+	web_session
+except:
+	web_session = None
+	
 ## webpy extensions ############################################################
 
 class service(web.application):
@@ -75,6 +79,7 @@ class hooks(object):
 	@staticmethod
 	def load():
 		web.debug("Loadhook")
+		#web.debug(web_session.uid)
 		#return "BEGIN"
 	
 	@staticmethod
@@ -90,8 +95,16 @@ class webctx(object):
 	def auth_check(self):
 		""" check if user is authenticated """
 		
+		try:
+			web_session.uid
+		except:
+			web.debug("creating session")
+			for e in session_default:
+				web_session[e] = session_default[e]
+		
+		
 		# check if we have a valid session
-		if web_session != None and web_session["uid"] > 0:
+		if web_session != None and web_session.uid > 0:
 			self.__authenticated = True
 			return True
 		
@@ -109,6 +122,18 @@ class webctx(object):
 		})
 
 class login(webctx):
+	no_auth = True
+	
+	def GET(self):
+		global web_session
+	
+		user_data = web.input(logout=False)
+		web.debug(user_data.logout)
+		if (user_data.logout == "true"):
+			#web_session = session_default
+			web_session.kill()
+			raise web.seeother('/')
+	
 	""" authenticate user """
 	def POST(self):
 		global web_session
@@ -135,9 +160,9 @@ class login(webctx):
 			if row:
 				authdb.close()
 				web.debug(row)
-				web_session = session_default
-				web_session["uid"] = row[0]
-				web_session["user"] = username
+				#web_session = session_default
+				web_session.uid = row[0]
+				web_session.user = username
 			
 				# if we found one, exit
 				return '{"success": true}'
@@ -154,10 +179,10 @@ class login(webctx):
 		
 		emp = usbauth.check(username, password)
 		if (emp and emp["lockoutTime"] == None):
-			web_session = session_default
-			web_session["uid"] = emp["employeeNumber"]
-			web_session["user"] = username
-			web_session["email"] = emp["email"]
+			#web_session = session_default
+			web_session.uid = emp["employeeNumber"]
+			web_session.user = username
+			web_session.email = emp["email"]
 			return '{"success": true}'
 		
 		return '{"success": false}'
@@ -243,49 +268,52 @@ def is_dict(d):
 	""" additional template function, registered with web.template.render """
 	return type(d) is dict
 
+	
+# redirect webserver logs to file
+#weblog = open(config.web_logfile, "ab")
+#sys.stderr = weblog
+#sys.stdout = weblog
+
+app = service(urls, globals())
+
+# session setup, make sure to call it only once if in debug mode
+if web.config.get('_session') is None:
+	web.config.session_parameters['cookie_name'] = config.session_name
+	web.config.session_parameters['timeout'] = config.session_timeout,
+	web.config.session_parameters['secret_key'] = config.session_salt
+	web.config.session_parameters['cookie_domain'] = config.session_cookie_domain
+	web.config.session_parameters['ignore_expiry'] = config.session_ignore_expiry
+	web.config.session_parameters['ignore_change_ip'] = config.session_ignore_change_ip
+	web.config.session_parameters['expired_message'] = config.session_expired_message
+
+	temp = tempfile.mkdtemp(dir=config.session_dir, prefix='session_')
+	web_session = web.session.Session(
+		app, 
+		web.session.DiskStore(temp), 
+		initializer = session_default
+	)
+else:
+	web_session = web.config._session
+	"""
+	try:
+		web_session["uid"]
+	except:
+		web_session = session_default
+	"""
+	
+app.add_processor(web.loadhook(hooks.load))
+app.add_processor(web.unloadhook(hooks.unload))
+
+web.config.debug = False
+
+#web_session["pid"] += 1
+#print "starting ..."
+#app.add_processor(web.loadhook(loadhook))
+#app.add_processor(web.unloadhook(unloadhook))
+#app.run(config.port, "0.0.0.0")
+
 ## main function ###############################################################
 if __name__ == "__main__":
-
-	# redirect webserver logs to file
-	#weblog = open(config.web_logfile, "ab")
-	#sys.stderr = weblog
-	#sys.stdout = weblog
-	
-	app = service(urls, globals())
-	
-	# session setup, make sure to call it only once if in debug mode
-	if web.config.get('_session') is None:
-		web.config.session_parameters['cookie_name'] = config.session_name
-		web.config.session_parameters['timeout'] = config.session_timeout,
-		web.config.session_parameters['secret_key'] = config.session_salt
-		web.config.session_parameters['cookie_domain'] = config.session_cookie_domain
-		web.config.session_parameters['ignore_expiry'] = config.session_ignore_expiry
-		web.config.session_parameters['ignore_change_ip'] = config.session_ignore_change_ip
-		web.config.session_parameters['expired_message'] = config.session_expired_message
-	
-		temp = tempfile.mkdtemp(dir=config.session_dir, prefix='session_')
-		web_session = web.session.Session(
-			app, 
-			web.session.DiskStore(temp), 
-			initializer = session_default
-		)
-	else:
-		web_session = web.config._session
-		try:
-			web_session["uid"]
-		except:
-			web_session = session_default
-	
-	app.add_processor(web.loadhook(hooks.load))
-	app.add_processor(web.unloadhook(hooks.unload))
-	
-	web.config.debug = True
-	
-	#web_session["pid"] += 1
-	#print "starting ..."
-	#app.add_processor(web.loadhook(loadhook))
-	#app.add_processor(web.unloadhook(unloadhook))
-	#app.run(config.port, "0.0.0.0")
 	app.run(config.port, "0.0.0.0", Log)
 
 

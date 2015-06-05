@@ -47,11 +47,6 @@ session_default = {
 	"email": None
 }
 
-try:
-	web_session
-except:
-	web_session = None
-	
 ## webpy extensions ############################################################
 
 class service(web.application):
@@ -95,13 +90,16 @@ class webctx(object):
 	def auth_check(self):
 		""" check if user is authenticated """
 		
+		"""
 		try:
 			web_session.uid
 		except:
 			web.debug("creating session")
 			for e in session_default:
 				web_session[e] = session_default[e]
+		"""
 		
+		web_session = get_session()
 		
 		# check if we have a valid session
 		if web_session != None and web_session.uid > 0:
@@ -274,46 +272,65 @@ def is_dict(d):
 #sys.stderr = weblog
 #sys.stdout = weblog
 
-app = service(urls, globals())
+def get_session():
+	#global app
+	web.debug(web.config.get('_session'))
+	if web.config.get('_session') is None:
+		web.debug("Setting up new session ...")
+		web.config.session_parameters['cookie_name'] = config.session_name
+		web.config.session_parameters['timeout'] = config.session_timeout,
+		web.config.session_parameters['secret_key'] = config.session_salt
+		web.config.session_parameters['cookie_domain'] = config.session_cookie_domain
+		web.config.session_parameters['ignore_expiry'] = config.session_ignore_expiry
+		web.config.session_parameters['ignore_change_ip'] = config.session_ignore_change_ip
+		web.config.session_parameters['expired_message'] = config.session_expired_message
 
-# session setup, make sure to call it only once if in debug mode
-if web.config.get('_session') is None:
-	web.config.session_parameters['cookie_name'] = config.session_name
-	web.config.session_parameters['timeout'] = config.session_timeout,
-	web.config.session_parameters['secret_key'] = config.session_salt
-	web.config.session_parameters['cookie_domain'] = config.session_cookie_domain
-	web.config.session_parameters['ignore_expiry'] = config.session_ignore_expiry
-	web.config.session_parameters['ignore_change_ip'] = config.session_ignore_change_ip
-	web.config.session_parameters['expired_message'] = config.session_expired_message
-
-	temp = tempfile.mkdtemp(dir=config.session_dir, prefix='session_')
-	web_session = web.session.Session(
-		app, 
-		web.session.DiskStore(temp), 
-		initializer = session_default
-	)
-else:
-	web_session = web.config._session
-	"""
-	try:
-		web_session["uid"]
-	except:
-		web_session = session_default
-	"""
-	
-app.add_processor(web.loadhook(hooks.load))
-app.add_processor(web.unloadhook(hooks.unload))
-
-web.config.debug = False
-
-#web_session["pid"] += 1
-#print "starting ..."
-#app.add_processor(web.loadhook(loadhook))
-#app.add_processor(web.unloadhook(unloadhook))
-#app.run(config.port, "0.0.0.0")
+		temp = tempfile.mkdtemp(dir=config.session_dir, prefix='session_')
+		web_session = web.session.Session(
+			app, 
+			web.session.DiskStore(temp), 
+			initializer = session_default
+		)
+	else:
+		web.debug("Reusing session ...")
+		web_session = web.config._session
+		"""
+		try:
+			web_session["uid"]
+		except:
+			web_session = session_default
+		"""
+	web.debug("session.uid: %s" % web_session.uid) 
+	return web_session
 
 ## main function ###############################################################
+
+"""
+try:
+	web_session
+except NameError:
+	web.debug("Resetting session ...")
+	web_session = None
+"""
+
+app = None
 if __name__ == "__main__":
+	web.config.debug = True
+
+	app = service(urls, globals())
+	# session setup, make sure to call it only once if in debug mode
+	
+	app.add_processor(web.loadhook(hooks.load))
+	app.add_processor(web.unloadhook(hooks.unload))
+
+	#web_session["pid"] += 1
+	#print "starting ..."
+	#app.add_processor(web.loadhook(loadhook))
+	#app.add_processor(web.unloadhook(unloadhook))
+	#app.run(config.port, "0.0.0.0")
+	
+	web_session = get_session()
+
 	app.run(config.port, "0.0.0.0", Log)
 
 

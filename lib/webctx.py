@@ -1,5 +1,22 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import web, config, json
+import datetime
+import time
+import re
+import base64
+import sys
+import os
+import usbauth
+import hashlib
+import sqlite3
+
 session = None
 
+def is_dict(d):
+	""" additional template function, registered with web.template.render """
+	return type(d) is dict
 
 ## page methods ################################################################
 
@@ -12,17 +29,17 @@ class webctx(object):
 		
 		"""
 		try:
-			webctx.session.uid
+			session.uid
 		except:
 			web.debug("creating session")
 			for e in session_default:
-				webctx.session[e] = session_default[e]
+				session[e] = session_default[e]
 		"""
 		
-		#webctx.session = get_session()
+		#session = get_session()
 		
 		# check if we have a valid session
-		if webctx.session != None and webctx.session.uid > 0:
+		if session != None and session.uid > 0:
 			self.__authenticated = True
 			return True
 		
@@ -35,21 +52,20 @@ class webctx(object):
 	
 	def render(self):
 		return web.template.render('template', globals={
-			'is_dict': is_dict, 
-			'escape': escape
+			'is_dict': is_dict
 		})
 
 class login(webctx):
 	no_auth = True
 	
 	def GET(self):
-		#global webctx.session
+		#global session
 	
 		user_data = web.input(logout=False)
 		web.debug(user_data.logout)
 		if (user_data.logout == "true"):
-			#webctx.session = session_default
-			webctx.session.kill()
+			#session = session_default
+			session.kill()
 			raise web.seeother('/')
 	
 	""" authenticate user """
@@ -77,9 +93,9 @@ class login(webctx):
 			if row:
 				authdb.close()
 				web.debug(row)
-				#webctx.session = session_default
-				webctx.session.uid = row[0]
-				webctx.session.user = username
+				#session = session_default
+				session.uid = row[0]
+				session.user = username
 			
 				# if we found one, exit
 				return '{"success": true}'
@@ -96,10 +112,10 @@ class login(webctx):
 		
 		emp = usbauth.check(username, password)
 		if (emp and emp["lockoutTime"] == None):
-			#webctx.session = session_default
-			webctx.session.uid = emp["employeeNumber"]
-			webctx.session.user = username
-			webctx.session.email = emp["email"]
+			#session = session_default
+			session.uid = emp["employeeNumber"]
+			session.user = username
+			session.email = emp["email"]
 			return '{"success": true}'
 		
 		return '{"success": false}'
@@ -111,7 +127,7 @@ class index(webctx):
 			return self.render().login()
 			
 		#web.debug(auth_check)
-		#web.debug(webctx.session)
+		#web.debug(session)
 		
 		render = web.template.render('template')
 		return render.index()

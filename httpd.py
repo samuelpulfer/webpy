@@ -84,11 +84,6 @@ class hooks(object):
 		#return "ENDE"
 
 
-def is_dict(d):
-	""" additional template function, registered with web.template.render """
-	return type(d) is dict
-
-	
 # redirect webserver logs to file
 #weblog = open(config.web_logfile, "ab")
 #sys.stderr = weblog
@@ -116,7 +111,7 @@ def init_session(app):
 		#for k in session_default.keys():
 		#	webctx.session[k] = session_default[k]
 		#webctx.session.uid = -1
-		web.debug(webctx.session.keys())
+		#web.debug(webctx.session.keys())
 	else:
 		web.debug("Reusing session ...")
 		webctx.session = web.config._session
@@ -127,7 +122,7 @@ def init_session(app):
 			webctx.session = session_default
 		"""
 	
-	web.debug("session.uid: %s" % webctx.session.uid) 
+	#web.debug("session.uid: %s" % webctx.session.uid) 
 	#return webctx.session
 
 ## main function ###############################################################

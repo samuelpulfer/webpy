@@ -74,7 +74,7 @@ class hooks(object):
 	@staticmethod
 	def load():
 		web.debug("Loadhook")
-		#web.debug(web_session.uid)
+		#web.debug(webctx.session.uid)
 		#return "BEGIN"
 	
 	@staticmethod
@@ -85,6 +85,7 @@ class hooks(object):
 ## page methods ################################################################
 
 class webctx(object):
+	session = None
 	no_auth = False
 	__authenticated = False
 	def auth_check(self):
@@ -92,17 +93,17 @@ class webctx(object):
 		
 		"""
 		try:
-			web_session.uid
+			webctx.session.uid
 		except:
 			web.debug("creating session")
 			for e in session_default:
-				web_session[e] = session_default[e]
+				webctx.session[e] = session_default[e]
 		"""
 		
-		web_session = get_session()
+		#webctx.session = get_session()
 		
 		# check if we have a valid session
-		if web_session != None and web_session.uid > 0:
+		if webctx.session != None and webctx.session.uid > 0:
 			self.__authenticated = True
 			return True
 		
@@ -123,18 +124,17 @@ class login(webctx):
 	no_auth = True
 	
 	def GET(self):
-		global web_session
+		#global webctx.session
 	
 		user_data = web.input(logout=False)
 		web.debug(user_data.logout)
 		if (user_data.logout == "true"):
-			#web_session = session_default
-			web_session.kill()
+			#webctx.session = session_default
+			webctx.session.kill()
 			raise web.seeother('/')
 	
 	""" authenticate user """
 	def POST(self):
-		global web_session
 		
 		# read posted json data
 		data = web.data()
@@ -158,9 +158,9 @@ class login(webctx):
 			if row:
 				authdb.close()
 				web.debug(row)
-				#web_session = session_default
-				web_session.uid = row[0]
-				web_session.user = username
+				#webctx.session = session_default
+				webctx.session.uid = row[0]
+				webctx.session.user = username
 			
 				# if we found one, exit
 				return '{"success": true}'
@@ -177,10 +177,10 @@ class login(webctx):
 		
 		emp = usbauth.check(username, password)
 		if (emp and emp["lockoutTime"] == None):
-			#web_session = session_default
-			web_session.uid = emp["employeeNumber"]
-			web_session.user = username
-			web_session.email = emp["email"]
+			#webctx.session = session_default
+			webctx.session.uid = emp["employeeNumber"]
+			webctx.session.user = username
+			webctx.session.email = emp["email"]
 			return '{"success": true}'
 		
 		return '{"success": false}'
@@ -192,7 +192,7 @@ class index(webctx):
 			return self.render().login()
 			
 		#web.debug(auth_check)
-		#web.debug(web_session)
+		#web.debug(webctx.session)
 		
 		render = web.template.render('template')
 		return render.index()
@@ -272,7 +272,7 @@ def is_dict(d):
 #sys.stderr = weblog
 #sys.stdout = weblog
 
-def get_session():
+def init_session(app):
 	#global app
 	web.debug(web.config.get('_session'))
 	if web.config.get('_session') is None:
@@ -286,50 +286,56 @@ def get_session():
 		web.config.session_parameters['expired_message'] = config.session_expired_message
 
 		temp = tempfile.mkdtemp(dir=config.session_dir, prefix='session_')
-		web_session = web.session.Session(
+		webctx.session = web.session.Session(
 			app, 
 			web.session.DiskStore(temp), 
 			initializer = session_default
 		)
+		#for k in session_default.keys():
+		#	webctx.session[k] = session_default[k]
+		#webctx.session.uid = -1
+		web.debug(webctx.session.keys())
 	else:
 		web.debug("Reusing session ...")
-		web_session = web.config._session
+		webctx.session = web.config._session
 		"""
 		try:
-			web_session["uid"]
+			webctx.session["uid"]
 		except:
-			web_session = session_default
+			webctx.session = session_default
 		"""
-	web.debug("session.uid: %s" % web_session.uid) 
-	return web_session
+	
+	web.debug("session.uid: %s" % webctx.session.uid) 
+	#return webctx.session
 
 ## main function ###############################################################
 
 """
 try:
-	web_session
+	webctx.session
 except NameError:
 	web.debug("Resetting session ...")
-	web_session = None
+	webctx.session = None
 """
 
 app = None
 if __name__ == "__main__":
-	web.config.debug = True
+	web.config.debug = False
 
 	app = service(urls, globals())
 	# session setup, make sure to call it only once if in debug mode
+	init_session(app)
 	
 	app.add_processor(web.loadhook(hooks.load))
 	app.add_processor(web.unloadhook(hooks.unload))
 
-	#web_session["pid"] += 1
+	#webctx.session["pid"] += 1
 	#print "starting ..."
 	#app.add_processor(web.loadhook(loadhook))
 	#app.add_processor(web.unloadhook(unloadhook))
 	#app.run(config.port, "0.0.0.0")
 	
-	web_session = get_session()
+	#webctx.session = get_session(app)
 
 	app.run(config.port, "0.0.0.0", Log)
 

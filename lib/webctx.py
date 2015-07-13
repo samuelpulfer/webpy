@@ -18,6 +18,60 @@ def is_dict(d):
 	""" additional template function, registered with web.template.render """
 	return type(d) is dict
 
+class status(web.HTTPError):
+	""" custom http error handler """
+	http_codes = {	
+		'100': 'Continue', '101': 'Switching Protocols',
+		'200': 'OK', '201': 'Created', '202': 'Accepted',
+				'203': 'Non-Authoritative Information','204': 'No Content',
+				'205': 'Reset Content', '206': 'Partial Content', 
+		'300': 'Multiple Choices', '301': 'Moved Permanently', '302': 'Found',
+				'303': 'See Other', '304': 'Not Modified', '305': 'Use Proxy',
+				'306': '(Unused)', '307': 'Temporary Redirect', 
+		'400': 'Bad Request', '401': 'Unauthorized', '402': 'Payment Required',
+				'403': 'Forbidden', '404': 'Not Found', '405': 'Method Not Allowed',
+				'406': 'Not Acceptable', '407': 'Proxy Authentication Required',
+				'408': 'Request Timeout', '409': 'Conflict', '410': 'Gone',
+				'411': 'Length Required', '412': 'Precondition Failed',
+				'413': 'Request Entity Too Large', '414': 'Request-URI Too Long',
+				'415': 'Unsupported Media Type', '416': 'Requested Range Not Satisfiable',
+				'417': 'Expectation Failed',
+		'500': 'Internal Server Error', '501': 'Not Implemented',
+				'502': 'Bad Gateway', '503': 'Service Unavailable', 
+				'504': 'Gateway Timeout', '505': 'HTTP Version Not Supported'
+	}
+	
+	def _http_code_lookup(self, code):
+		out = None
+		try:
+			out = self.http_codes[str(code)]
+			out = str(code) + " " + out
+		except:
+			out = "520 Unknown Error"
+		
+		return out
+	
+	code = None
+	status = None
+	headers = None
+	
+	def __init__(self, code, data=None, headers=None):
+		self.code = code
+		self.headers = {'Content-Type': 'text/html'}
+		self.status = self._http_code_lookup(code)
+		self.data = "<h1>" + str(self.status) + "</h1>"
+		
+		if headers != None:
+			self.headers = headers
+		if data != None:
+			self.data = data
+		
+	def fail(self):
+		web.debug(self.status)
+		web.debug(self.headers)
+		web.debug(self.data)
+		web.HTTPError.__init__(self, self.status, self.headers, self.data)
+
 ## page methods ################################################################
 
 class webctx(object):
@@ -54,6 +108,11 @@ class webctx(object):
 		return web.template.render('template', globals={
 			'is_dict': is_dict
 		})
+	
+	def error(self, code):
+		st = status(code)
+		content = self.render().error(code, st.status, "sss")
+		st.fail()
 
 class login(webctx):
 	no_auth = True
@@ -153,6 +212,9 @@ class image(webctx):
 class env(webctx):
 	""" display environment variables """
 	def GET(self):
+		if not self.auth_check():
+			return self.render().login()
+		
 		out = {}
 		for property, value in vars(web.ctx).iteritems():
 			out[property] = value
@@ -162,11 +224,17 @@ class env(webctx):
 class json1(webctx):
 	""" Serve json example page (using JQuery)"""
 	def GET(self):
+		if not self.auth_check():
+			return self.render().login()
+			
 		#render = web.template.render('template')
 		return self.render().json1()
 		#return out
 	
 	def POST(self):
+		if not self.auth_check():
+			return self.render().login()
+		
 		post = web.input()
 		web.header('Content-Type', 'application/json')
 		try:
@@ -181,10 +249,16 @@ class json1(webctx):
 class json2(webctx):
 	""" Serve json example page (100% VanillaJS)"""
 	def GET(self):
+		if not self.auth_check():
+			return self.render().login()
+		
 		render = web.template.render('template')
 		return render.json2()
 	
 	def POST(self):
+		if not self.auth_check():
+			return self.render().login()
+		
 		web.header('Content-Type', 'application/json')
 		try:
 			post = json.loads(web.data())

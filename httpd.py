@@ -9,6 +9,11 @@ need root privvileges to bind ports below 1024.
 
 """
 
+meta = {
+	"name": "framework",
+	"version": "0.0.1"
+}
+
 # setup paths
 import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), 'etc'))
@@ -94,7 +99,7 @@ def init_session(app):
 	web.debug(web.config.get('_session'))
 	if web.config.get('_session') is None:
 		web.debug("Setting up new session ...")
-		web.config.session_parameters['cookie_name'] = config.session_name
+		web.config.session_parameters['cookie_name'] = meta["name"] + "_"
 		web.config.session_parameters['timeout'] = config.session_timeout,
 		web.config.session_parameters['secret_key'] = config.session_salt
 		web.config.session_parameters['cookie_domain'] = config.session_cookie_domain

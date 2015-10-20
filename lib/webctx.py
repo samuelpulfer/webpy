@@ -192,6 +192,19 @@ class index(webctx):
 		return render.index()
 		#return out
 
+class bootstrap(webctx):
+	""" Serve bootstrap example page """
+	def GET(self):
+		if not self.auth_check():
+			return self.render().login()
+			
+		#web.debug(auth_check)
+		#web.debug(session)
+		
+		render = web.template.render('template')
+		return render.bootstrap()
+		#return out
+		
 class image(webctx):
 	no_auth = True
 	""" Serve image, this method requires not authentication """

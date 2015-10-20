@@ -43,7 +43,8 @@ urls = (
   '/json1', 'webctx.json1',
   '/json2', 'webctx.json2',
   '/image', 'webctx.image',
-  '/login', 'webctx.login'
+  '/login', 'webctx.login',
+  '/bootstrap', 'webctx.bootstrap'
 )
 
 # default session values

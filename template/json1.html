@@ -5,90 +5,11 @@ $def with ()
 	<meta charset="utf-8">
 	<title>json1</title>
 	
-	<style type="text/css">
-	body {
-		font-family: Verdana, "Bitstream Vera Sans", "DejaVu Sans", Tahoma, Geneva, 
-			Arial, Sans-serif;
-	}
-	input[type=number] {text-align: right;}
-	#console {
-		margin-top: 1em;
-	}
-	div span.label {
-		padding-right: 1em; 
-		font-weight: bold;
-	}
+	<link rel="stylesheet" type="text/css" href="static/css/json1.css">
 	
-	#console {
-		color: lime;
-		border: 1px inset #aaa;
-		font-family: courier, fixed;
-		font-size: 0.8em;
-		padding: 0.5em;
-		background-color: black;
-	}
-	
-	fieldset {float: left;}
-	
-	#break {clear: both;}
-	
-	#container {height: 6.5em;}
-	#container>fieldset {
-		height: inherit;
-		width: 280px;
-	}
-	</style>
-	
-	<script type="application/javascript" src="static/jquery-2.1.3.min.js"></script>
-	<script type="application/javascript">
-	function send_form(obj) {
-		// get data from the form
-		var int1 = parseInt(document.getElementById("int1").value);
-		var int2 = parseInt(document.getElementById("int2").value);
-		
-		// display the values gathered fro mthe form
-		console.log(int1 + " " + int2);
-		
-		// user input sanity check
-		if (isNaN(int1)) {
-			alert("«int1» is not a number");
-			return false;
-		}
-		
-		if (isNaN(int2)) {
-			alert("«int2» is not a number");
-			return false;
-		}
-		
-		// create a json request object
-		var params = {
-			int1: int1,
-			int2: int2
-		}
-		
-		$$.ajax({
-			url: '/json1',
-			type: 'POST',
-			contentType: "application/x-www-form-urlencoded; charset=utf-8",
-			dataType: 'json',
-			
-			data: params,
-			
-			error: function(xhr, str, str) {
-				document.getElementById('info').innerHTML = 'Communication error: '+xhr.status+' '+str;
-			},
-			
-			success: function(data) {
-				document.getElementById('info').innerHTML = 'Success';
-				//console.log(data)
-				
-				document.getElementById("result").innerHTML = 
-					data.i1 + " <em>and</em> " + data.i2 + " <em>equals</em> " + data.res;
-			}
-			
-		});
-	}
-	</script>
+	<script type="application/javascript" src="static/js/jquery-2.1.3.min.js"></script>
+	<script type="application/javascript" src="static/js/json1.js"></script>
+
 </head>
 <body>
 

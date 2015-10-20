@@ -1,0 +1,31 @@
+body {
+	font-family: Verdana, "Bitstream Vera Sans", "DejaVu Sans", Tahoma, Geneva, 
+		Arial, Sans-serif;
+}
+input[type=number] {text-align: right;}
+#console {
+	margin-top: 1em;
+}
+div span.label {
+	padding-right: 1em; 
+	font-weight: bold;
+}
+
+#console {
+	color: lime;
+	border: 1px inset #aaa;
+	font-family: courier, fixed;
+	font-size: 0.8em;
+	padding: 0.5em;
+	background-color: black;
+}
+
+fieldset {float: left;}
+
+#break {clear: both;}
+
+#container {height: 6.5em;}
+#container>fieldset {
+	height: inherit;
+	width: 280px;
+}

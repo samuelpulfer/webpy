@@ -133,7 +133,7 @@ class login(webctx):
 		# read posted json data
 		data = web.data()
 		credentials = json.loads(data)
-		
+	
 		username = credentials["username"]
 		password = credentials["password"]
 		

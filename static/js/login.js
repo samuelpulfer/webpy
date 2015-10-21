@@ -42,7 +42,7 @@ function auth() {
 				// reload page
 				document.location.href = document.location.href
 			
-			
+			byId('password').value = ''
 			log_status("Unknown username and/or password, try again.")
 			return
 		}

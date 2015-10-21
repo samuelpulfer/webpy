@@ -30,8 +30,8 @@ $def with ()
 		<form class="form-signin">
 			<h2 class="form-signin-heading">Please sign in</h2>
 			<input type="text" name="username" id="username" value="" class="form-control" placeholder="Username" required autofocus>
-			<input type="password" name="password" id="password" value="" class="form-control" placeholder="Password" required>
-			<input type="button" onclick="auth()" value="Sign in" class="btn btn-lg btn-primary btn-block"/>
+			<input type="password" name="password" id="password" value="" class="form-control" placeholder="Password" onkeydown="if (event.keyCode == 13) document.getElementById('signinbtn').click()" required>
+			<input type="button" id="signinbtn" onclick="auth()" value="Sign in" class="btn btn-lg btn-primary btn-block"/>
 		</form>
 	</div> <!-- /container -->
 </body>

@@ -1,6 +1,7 @@
 function byId(id) {return document.getElementById(id);}
 function log_status(txt) {
 	document.getElementById('info').innerHTML = txt;
+	document.getElementById('info').style.display = "block";
 }
 
 function auth() {

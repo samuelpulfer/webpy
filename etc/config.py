@@ -5,7 +5,7 @@
 #
 
 # webserver port
-port=8080
+port=8088
 
 # log files
 web_logfile="var/access.log"

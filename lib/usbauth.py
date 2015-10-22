@@ -30,7 +30,6 @@ The file provides 2 main functions:
 		}
 """
 
-
 import ldap, sys, json
 from datetime import datetime
 
@@ -88,6 +87,7 @@ class usbauth(object):
 		# open an ldap connection for searching 
 		self.__conn = ldap.open(self.host)
 		self.__conn.protocol_version = ldap.VERSION3
+		self.__conn.set_option(ldap.OPT_NETWORK_TIMEOUT, 3.0)
 		self.__conn.simple_bind_s(self.baseauth["dn"], self.baseauth["pw"])
 
 	def auth(self, username, pw):
@@ -103,6 +103,7 @@ class usbauth(object):
 			
 			l = ldap.open(self.host)
 			l.protocol_version = ldap.VERSION3
+			l.set_option(ldap.OPT_NETWORK_TIMEOUT, 3.0)
 			l.simple_bind_s(userdn, pw)
 			
 		except ldap.LDAPError, e:

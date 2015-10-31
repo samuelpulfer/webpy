@@ -9,11 +9,6 @@ need root privvileges to bind ports below 1024.
 
 """
 
-meta = {
-	"name": "framework",
-	"version": "0.0.1"
-}
-
 # setup paths
 import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), 'etc'))
@@ -33,6 +28,11 @@ import usbauth
 import hashlib
 import sqlite3
 import webctx
+
+meta = {
+	"name": config.meta_name,
+	"version": config.meta_version
+}
 
 ## global variables ############################################################
 
@@ -108,7 +108,7 @@ def init_session(app):
 		web.config.session_parameters['ignore_change_ip'] = config.session_ignore_change_ip
 		web.config.session_parameters['expired_message'] = config.session_expired_message
 
-		temp = tempfile.mkdtemp(dir=config.session_dir, prefix='session_')
+		temp = tempfile.mkdtemp(dir=config.session_dir, prefix=config.session_dir_prefix)
 		webctx.session = web.session.Session(
 			app, 
 			web.session.DiskStore(temp), 

@@ -10,5 +10,6 @@ find ./ -iname "*~" -exec rm {} \;
 # remove libs
 rm -rf lib/wsgilog-0.3
 rm -rf lib/web.py-0.37
+rm -rf static/ext-5.1.1
 rm -rf static/bootstrap-3.3.5-dist
 rm -rf "$session_dir/$session_prefix"*

@@ -16,7 +16,6 @@ function set_config() {
 	fi
 }
 
-
 echo "Setting up defaults ..."
 uuid=`./bin/genuuid.py`
 uuid=`echo -n $uuid`
@@ -36,6 +35,32 @@ if [[ "$newport" != "" && "$newport" != "$port" ]]; then
 	set_config "port" "$newport" "etc/config.py"
 fi
 
+newuser=""
+newpass=""
+function username() {
+	read -p "Set admin user name [admin]: " newuser
+	
+	if [[ "$newuser" == "" ]]; then
+		newuser="admin"
+	fi
+	return 1
+}
+while username; do a=1; done
+
+function pass() {
+	read -p "Set admin password: " newpass
+	
+	if [[ "$newpass" == "" ]]; then
+		return 0
+	else
+		return 1
+	fi
+}
+while pass; do a=1; done
+echo "Creating new user '$newuser' ..."
+./bin/setuser.py "$newuser" "$newpass"
+#echo "$newpass" | hexdump
+
 read -p "Hit any key to extract files." tmp
 
 echo "Unpacking libraries ..."
@@ -47,7 +72,13 @@ ln -s web.py-0.37 web
 tar xjf wsgilog-0.3.tar.bz2 
 ln -s wsgilog-0.3 wsgilog
 
-unzip bootstrap-3.3.5-dist.zip -d ../static/
+unzip bootstrap-3.3.5-dist.zip -o -d ../static/
+
+cd ..
+cd static
+
+unzip -o ext-5.1.1-gpl.zip
+ln -s ext-5.1.1 ext
 
 cd ..
 

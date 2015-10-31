@@ -100,7 +100,7 @@ def init_session(app):
 	web.debug(web.config.get('_session'))
 	if web.config.get('_session') is None:
 		web.debug("Setting up new session ...")
-		web.config.session_parameters['cookie_name'] = meta["name"] + "_"
+		web.config.session_parameters['cookie_name'] = meta["name"]
 		web.config.session_parameters['timeout'] = config.session_timeout,
 		web.config.session_parameters['secret_key'] = config.session_salt
 		web.config.session_parameters['cookie_domain'] = config.session_cookie_domain

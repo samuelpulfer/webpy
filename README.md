@@ -7,11 +7,12 @@
 
 
 ## Run
-
+    $ cd projectdir
     $ . ./lib/setenv.sh
     $ start # can be run from any directory or
     $ <path to rootdir>/bin/start.sh # can be run from any directory
     dito stop
+    $ help # for a list of commands
 
 
 ## Development

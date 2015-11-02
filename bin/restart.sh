@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
 
-./bin/stop.sh
-./bin/start.sh
+export basedir=`dirname ${BASH_SOURCE[0]}`"/.."
+basedir=`$basedir/bin/realpath $basedir`
+
+$basedir/bin/stop.sh
+$basedir/bin/start.sh

@@ -2,6 +2,7 @@
 
 export basedir=`dirname ${BASH_SOURCE[0]}`"/.."
 basedir=`$basedir/bin/realpath $basedir`
+cd "$basedir"
 
 . $basedir/etc/config.py
 

@@ -16,8 +16,11 @@
 
 
 ## Development
-  - use ./bin/clean.sh to remove all extracted libraries and session/temp files
+  - use ./bin/clean.sh to remove all extracted libraries and session/temp files (does not remove etc/user.db, subsequent calls to setup.sh will update existing users)
   - use ./bin/setup.sh to create a new installation
   - use . ./lib/setenv.sh to setup helper scripts for administration, these provide
     the following commands: help, start, stop, restart, status
 
+## Dependencies
+  - gcc
+  - python uuid

@@ -9,7 +9,7 @@ CREATE TABLE user (
 );
 
 -- default password is "password" (md5 hash)
-INSERT INTO "user" VALUES(1,'admin','5f4dcc3b5aa765d61d8327deb882cf99');
+-- INSERT INTO "user" VALUES(1,'admin','5f4dcc3b5aa765d61d8327deb882cf99');
 
 DELETE FROM sqlite_sequence;
 INSERT INTO "sqlite_sequence" VALUES('user',1);

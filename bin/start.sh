@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
-. etc/config.py
+
+export basedir=`dirname ${BASH_SOURCE[0]}`"/.."
+basedir=`$basedir/bin/realpath $basedir`
+
+. $basedir/etc/config.py
 
 echo "Starting server at port: $port"
 #nohup ./myprogram.sh > /dev/null 2>&1 & echo $! > run.pid
-nohup ./httpd.py > $web_logfile 2>&1 & echo $! > $session_dir/$meta_name.pid
+nohup $basedir/httpd.py > $basedir/$web_logfile 2>&1 & echo $! > $basedir/$session_dir/$meta_name.pid
 #nohup ./httpd.py > $web_logfile &

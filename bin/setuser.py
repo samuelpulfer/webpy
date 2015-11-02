@@ -60,7 +60,7 @@ if __name__ == "__main__":
 	res = con.execute(sql)
 	found = False
 	for row in res:
-		print "ID =", row[0]
+		#print "ID =", row[0]
 		found = True
 	
 	# if we have found the username, modify it

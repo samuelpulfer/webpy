@@ -172,7 +172,10 @@ class login(webctx):
 		emp = usbauth.check(username, password)
 		if (emp and emp["lockoutTime"] == None):
 			#session = session_default
-			session.uid = emp["employeeNumber"]
+			if emp["employeeNumber"]:
+				session.uid = emp["employeeNumber"]
+			else:
+				session.uid = "123456"
 			session.user = username
 			session.email = emp["email"]
 			return '{"success": true}'
@@ -284,3 +287,16 @@ class json2(webctx):
 		
 		return '{"error": 0, "i1": '+str(i1)+', "i2": '+str(i2)+', "res": '+str(res)+'}'
 
+class authorisationxmpl(webctx):
+	def GET(self):
+		if not self.auth_check():
+			return self.render().login()
+
+		if usbauth.authorisation(session.user, "MT_P_mtwikilp01_statistics_pneumo"):
+			message = "Sie sind in der Gruppe MT_P_mtwikilp01_statistics_pneumo"
+		else:
+			message = "Sie sind NICHT in der Gruppe MT_P_mtwikilp01_statistics_pneumo"
+			
+		render = web.template.render('template')
+		return render.authxmpl(message)
+		

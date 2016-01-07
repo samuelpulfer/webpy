@@ -229,7 +229,78 @@ class usbauth(object):
 			return ret
 		
 		return a.info(a.__lastobj)
+		
+	def dn2obj(self, dn, searchfilter="(objectClass=*)"):
+		""" returns the object with the dn == dn 
+		"""
+		
+		self.__lastobj = None
+		ldap_result_id = self.__conn.search(dn, 
+		                                    ldap.SCOPE_BASE, 
+		                                    searchfilter, 
+		                                    None)
+		result_type, result_data = self.__conn.result(ldap_result_id, 0)
+		
+		try:
+			self.__lastobj = result_data[0]
+			#print self.__lastobj
+			return self.__lastobj
+		except:
+			return None
+		
+		return None
+		
+	def randomsearch(self, searchfilter):
+		""" returns the object with the cn == cn 
 
+		"""
+
+		self.__lastobj = None
+		ldap_result_id = self.__conn.search(self.baseDN, 
+		                                    ldap.SCOPE_SUBTREE, 
+		                                    searchfilter, 
+		                                    None)
+		result_type, result_data = self.__conn.result(ldap_result_id, 0)
+		
+		try:
+			self.__lastobj = result_data[0]
+			#print self.__lastobj
+			return self.__lastobj
+		except:
+			return None
+		
+		return None
+		
+	def checkmember(self, userdn, dns):
+		founddns = []
+		for x in dns:
+			groupobj = self.dn2obj(x, searchfilter="(objectClass=Group)")
+			if groupobj and groupobj[1]['member']:
+				if userdn in groupobj[1]['member']:
+					return True
+				else:
+					for y in groupobj[1]['member']:
+						founddns.append(y)
+		return founddns
+		
+
+
+	def ismember(self, username, groupname, searchloops=3):
+	
+		userdn = self.randomsearch("sAMAccountName="+username)[0]
+		groupdn = [self.randomsearch("cn="+groupname)[0]]
+		
+		for x in range(0, searchloops):
+			result = self.checkmember(userdn, groupdn)
+			if result == True:
+				return True
+			elif result == []:
+				return False
+			else:
+				groupdn = result
+				
+		return False	
+		
 def init(authdn=None, authpw=None, baseDN=None, host=None):
 		
 		if (authdn): usbauth.baseauth["dn"] = authdn
@@ -248,6 +319,10 @@ def lookup(username):
 		return a.info(a.lastobj)
 	else:
 		return None
+		
+def authorisation(username, group):
+	a = usbauth()
+	return a.ismember(username, group)
 
 if __name__ == "__main__":
 	usage = """Usage: auth.py <username|emailaddr> [password]

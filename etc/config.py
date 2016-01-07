@@ -6,7 +6,7 @@
 
 # application information
 meta_name="webpy"
-meta_version="0.0.1"
+meta_version="0.0.3"
 
 # webserver port
 port=8090
@@ -17,7 +17,7 @@ app_logfile="var/application.log"
 sql_logfile="var/sql.log"
 
 # session defaults
-session_salt="3f81e24f-5009-446b-8c66-77f3848a2bf8"
+session_salt="dd1322b5-6967-46b7-aed1-17c56be977cb"
 session_timeout=86400 #24 * 60 * 60, # 24 hours   in seconds
 session_dir='var'
 session_dir_prefix="session_"

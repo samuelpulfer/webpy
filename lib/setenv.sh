@@ -8,7 +8,8 @@ if [[ $? == 0 ]]; then system="Debian"; fi
 
 export system
 export basedir=`dirname ${BASH_SOURCE[0]}`"/.."
-basedir=`$basedir/bin/realpath $basedir`
+export PATH=$PATH:$basedir/bin
+basedir=`realpath $basedir`
 
 if [[ -n $0 && "$0" != "-bash" ]]; then
 	script=`basename $0`

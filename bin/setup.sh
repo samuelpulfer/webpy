@@ -62,6 +62,11 @@ function pass() {
 	fi
 }
 while pass; do a=1; done
+which sqlite3 >/dev/null 2>&1
+if [[ $? != 0 ]]; then
+	echo "Sqlite 3 client must be installed. Aborting."
+	exit 1
+fi
 sqlite3 etc/user.db < etc/user.sql
 echo "Creating new user '$newuser' ..."
 ./bin/setuser.py "$newuser" "$newpass"
@@ -83,8 +88,8 @@ unzip -d ../static/ -o bootstrap-3.3.5-dist.zip
 cd ..
 cd static
 
-unzip -o ext-5.1.1-gpl.zip
-ln -s ext-5.1.1 ext
+#unzip -o ext-5.1.1-gpl.zip
+#ln -s ext-5.1.1 ext
 
 cd ..
 

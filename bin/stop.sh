@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 export basedir=`dirname ${BASH_SOURCE[0]}`"/.."
-basedir=`$basedir/bin/realpath $basedir`
+export PATH=$PATH:$basedir/bin
+basedir=`realpath $basedir`
 
 . $basedir/etc/config.py
 

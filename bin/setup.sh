@@ -83,6 +83,8 @@ ln -s web.py-0.37 web
 tar xjf wsgilog-0.3.tar.bz2 
 ln -s wsgilog-0.3 wsgilog
 
+unzip -d ../static/js/ -o jquery-2.1.3.min.js.zip
+
 unzip -d ../static/ -o bootstrap-3.3.5-dist.zip
 
 cd ..

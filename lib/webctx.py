@@ -318,5 +318,5 @@ class docverwaltung(webctx):
 			return '{ "meta": {"error": 1, "error_message": "no valid json received", "version": "0.0.1"}}'
 		
 		#return post
-		return testinterface.dosomething(post)
+		return json.dumps(testinterface.dosomething(post))
 		

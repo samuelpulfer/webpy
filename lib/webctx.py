@@ -11,6 +11,7 @@ import os
 import usbauth
 import hashlib
 import sqlite3
+import testinterface
 
 session = None
 
@@ -299,4 +300,23 @@ class authorisationxmpl(webctx):
 			
 		render = web.template.render('template')
 		return render.authxmpl(message)
+		
+		
+class docverwaltung(webctx):
+	""" Countdown page (100% VanillaJS)"""
+	def GET(self):
+		no_auth = True
+		
+		render = web.template.render('template')
+		return render.docverwaltung()
+	
+	def POST(self):
+		web.header('Content-Type', 'application/json')
+		try:
+			post = json.loads(web.data())
+		except:
+			return '{ "meta": {"error": 1, "error_message": "no valid json received", "version": "0.0.1"}}'
+		
+		#return post
+		return testinterface.dosomething(post)
 		

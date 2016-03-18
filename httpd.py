@@ -15,6 +15,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'etc'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib', 'web'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib', 'wsgilog'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
 
 # import modules
 import web, config, json
@@ -28,6 +29,7 @@ import usbauth
 import hashlib
 import sqlite3
 import webctx
+import testinterface
 
 meta = {
 	"name": config.meta_name,
@@ -45,7 +47,8 @@ urls = (
   '/image', 'webctx.image',
   '/login', 'webctx.login',
   '/bootstrap', 'webctx.bootstrap',
-  '/authorisation', 'webctx.authorisationxmpl'
+  '/authorisation', 'webctx.authorisationxmpl',
+	'/docverwaltung', 'webctx.docverwaltung'
 )
 
 # default session values

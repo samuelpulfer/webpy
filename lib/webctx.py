@@ -11,6 +11,10 @@ import os
 import usbauth
 import hashlib
 import sqlite3
+import pprint
+import mimerender
+import dicttoxml
+from xml.dom.minidom import parseString
 
 session = None
 
@@ -72,6 +76,39 @@ class status(web.HTTPError):
 		web.debug(self.data)
 		web.HTTPError.__init__(self, self.status, self.headers, self.data)
 
+# mimerender
+mimerender = mimerender.WebPyMimeRender()
+
+class renderer(object):
+	
+	@staticmethod
+	def dict2xml(d):
+		return parseString(dicttoxml.dicttoxml(d, \
+		                   custom_root="root")).toprettyxml()
+	
+	@staticmethod
+	def dict2json(d):
+		return json.dumps(d)
+	
+	@staticmethod
+	def dict2txt(d):
+		pp = pprint.PrettyPrinter(indent=4, width=1)
+		return pp.pformat(d)
+	
+	@staticmethod
+	def dict2html(d):
+		buffer = '<table border="1" style="border-collapse: collapse;"><tbody>'
+		for e in d:
+			buffer += "<tr><td>" + str(e) + "</td><td>"
+			if type(d[e]) is dict: # or type(d[e]) is list:
+				buffer += renderer.dict2html(d[e])
+			else:
+				buffer += str(d[e])
+			buffer += "</td></tr>"
+		buffer += '</tbody></table>'
+	
+		return buffer
+		
 ## page methods ################################################################
 
 class webctx(object):
@@ -299,4 +336,49 @@ class authorisationxmpl(webctx):
 			
 		render = web.template.render('template')
 		return render.authxmpl(message)
+		
+class resttest(webctx):
+	def GET(self):
+		render = web.template.render('template')
+		return render.resttest()
+		
+class rest(webctx):
+	render_xml  = lambda **args: renderer.dict2xml(args)
+	render_json = lambda **args: renderer.dict2json(args)
+	render_html = lambda **args: '<!DOCTYPE html>\n<html>\n<body>\n' + \
+	                             renderer.dict2html(args) + "\n</body>\n</html>"
+	render_txt  = lambda **args: renderer.dict2txt(args)
+	
+	@mimerender(
+		default = 'json',
+		#html = render_html,
+		json = render_json,
+		xml  = render_xml,
+		txt  = render_txt
+	)
+	def GET (self, name):
+		if not name: 
+			name = 'world'
+		data = {
+			'message': 'Hello, ' + name + '!', 
+			"sub": {
+				"array": [1,2,3], 
+				"list": {"a": 1, "b": 2}
+			}
+		}
+		return data
+		
+	@mimerender(
+		default = 'json',
+		json = render_json
+	)
+	def POST(self, name):
+		data = json.loads(web.data())
+		print data
+		#WTF ???
+		data = json.loads(data)
+		response = dict(path=dict(),message=dict())
+		response['message'] = data
+		response['path'] = name
+		return response
 		

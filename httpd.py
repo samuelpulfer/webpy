@@ -15,6 +15,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'etc'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib', 'web'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib', 'wsgilog'))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'lib', 'python-mimeparse-1.5.1'))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'lib', 'mimerender-master', 'src'))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'lib', 'dicttoxml-1.6.6'))
 
 # import modules
 import web, config, json
@@ -28,6 +31,7 @@ import usbauth
 import hashlib
 import sqlite3
 import webctx
+
 
 meta = {
 	"name": config.meta_name,
@@ -45,7 +49,9 @@ urls = (
   '/image', 'webctx.image',
   '/login', 'webctx.login',
   '/bootstrap', 'webctx.bootstrap',
-  '/authorisation', 'webctx.authorisationxmpl'
+  '/authorisation', 'webctx.authorisationxmpl',
+  '/resttest', 'webctx.resttest',
+  '/rest(.*)', 'webctx.rest'
 )
 
 # default session values
@@ -89,8 +95,7 @@ class hooks(object):
 	def unload():
 		web.debug("Unloadhook")
 		#return "ENDE"
-
-
+		
 # redirect webserver logs to file
 #weblog = open(config.web_logfile, "ab")
 #sys.stderr = weblog

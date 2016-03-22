@@ -87,6 +87,10 @@ unzip -d ../static/js/ -o jquery-2.1.3.min.js.zip
 
 unzip -d ../static/ -o bootstrap-3.3.5-dist.zip
 
+unzip -o -q mimerender-master.zip
+tar xzf dicttoxml-1.6.6.tar.gz
+tar xzf python-mimeparse-1.5.1.tar.gz
+
 cd ..
 cd static
 

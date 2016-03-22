@@ -1,0 +1,39 @@
+$def with ()
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>resttest</title>
+	
+	<link rel="stylesheet" type="text/css" href="static/css/resttest.css">
+
+	<script type="application/javascript" src="static/js/resttest.js"></script>	
+
+</head>
+<body>
+
+<div id="container">
+	<h1>resttest</h1>
+	<table>
+	<tr>
+		<td>Uri</td>
+		<td><input type="text" name="tgturi" id="tgturi" value="/rest"/></td>
+	</tr>
+	<tr>
+		<td>Message</td>
+		<td><textarea name="message" id="message" value="" style="width: 300px; height: 200px;">{"hello": "world"}</textarea></td>
+	</tr>
+	<tr>
+		<td><button type="button" onclick="send_form(); return false;">Send</button></td>
+	</tr>
+	<div id="response"></div>
+	<div id="console">
+		<span class="label">Network Status: </span>
+		<span id="info">N/A</span>
+	</div>
+</div>
+
+
+
+</body>
+</html>

@@ -351,6 +351,7 @@ class docverwaltung(webctx):
 		web.header('Content-Type', 'application/json')
 		try:
 			post = json.loads(web.data())
+			post = json.loads(post)
 		except:
 			return '{ "meta": {"error": 1, "error_message": "no valid json received", "version": "0.0.1"}}'
 		
@@ -397,8 +398,11 @@ class rest(webctx):
 		print data
 		#WTF ???
 		data = json.loads(data)
-		response = dict(path=dict(),message=dict())
-		response['message'] = data
-		response['path'] = name
-		return response
+		if name == "":
+			return testinterface.dosomething(data)
+		else:			
+			response = dict(path=dict(),message=dict())
+			response['message'] = data
+			response['path'] = name
+			return response
 		

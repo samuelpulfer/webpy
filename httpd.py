@@ -52,7 +52,7 @@ urls = (
   '/login', 'webctx.login',
   '/bootstrap', 'webctx.bootstrap',
   '/authorisation', 'webctx.authorisationxmpl',
-	'/docverwaltung', 'webctx.docverwaltung'
+	'/docverwaltung', 'webctx.docverwaltung',
   '/resttest', 'webctx.resttest',
   '/rest(.*)', 'webctx.rest'
 )

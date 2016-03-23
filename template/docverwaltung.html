@@ -12,9 +12,42 @@ $def with ()
 
 <h1>Docverwaltung</h1>
 <p>Hier w&auml;re es sch&ouml;n wenn die Dokumentation angezeigt w&uuml;rde...</p>
-<textarea name="message" id="message" value="" style="width: 300px; height: 200px;"></textarea>
-<button type="button" onclick="send_form(this); return false;">Send</button>
+<h2>/docverwaltung *deprecated*</h2>
+<textarea name="message" id="message" value="" style="width: 350px; height: 200px;">
+{
+	"meta": {
+	"version": "0.0.1",
+	"content-type": "image/tiff",
+	"limit": 10,
+	"start": 0,
+	"store": "queue",
+	"width": 106,
+	"height": 150,
+	"action": "list",
+	"parameter": {}
+	}
+}
+</textarea>
+<button type="button" onclick="docverwaltung(); return false;">Send</button>
 <div id="response"></div>
+
+<div id="container">
+	<h2>RestTest</h2>
+	<table>
+	<tr>
+		<td>Uri</td>
+		<td><input type="text" name="tgturi" id="tgturi" value="/rest"/></td>
+	</tr>
+	<tr>
+		<td>Message</td>
+		<td><textarea name="message2" id="message2" value="" style="width: 350px; height: 200px;">{"hello": "world"}</textarea></td>
+	</tr>
+	<tr>
+		<td><button type="button" onclick="resttest(); return false;">Send</button></td>
+	</tr>
+	</table>
+	<div id="response2"></div>
+</div>
 
 </body>
 </html>

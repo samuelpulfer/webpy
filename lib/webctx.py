@@ -378,6 +378,8 @@ class rest(webctx):
 		txt  = render_txt
 	)
 	def GET (self, name):
+		web.header('Access-Control-Allow-Origin',      '*')
+		web.header('Access-Control-Allow-Credentials', 'true')
 		if not name: 
 			name = 'world'
 		data = {
@@ -394,6 +396,8 @@ class rest(webctx):
 		json = render_json
 	)
 	def POST(self, name):
+		web.header('Access-Control-Allow-Origin',      '*')
+		web.header('Access-Control-Allow-Credentials', 'true')
 		data = json.loads(web.data())
 		print data
 		#WTF ???

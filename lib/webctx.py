@@ -409,4 +409,8 @@ class rest(webctx):
 			response['message'] = data
 			response['path'] = name
 			return response
+			
+	def OPTIONS(self, name):
+		web.header('Access-Control-Allow-Origin',      '*')
+		web.header('Access-Control-Allow-Credentials', 'true')
 		

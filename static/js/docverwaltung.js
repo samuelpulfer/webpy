@@ -3,14 +3,14 @@ function byId(elid) {return document.getElementById(elid);}
 function send_form(data, path, action) {	
 	var r = new XMLHttpRequest();
 	r.open("POST", path, true);
-	r.setRequestHeader("Content-Type","application/json; charset=utf-8");
+	r.setRequestHeader("Content-Type","application/json");
 	r.onreadystatechange = function () {
 		if (r.readyState==4 && r.status==200) {
 			data = JSON.parse(r.responseText);
 			action(data)
 		};
 	};
-	r.send(JSON.stringify(data));
+	r.send(data);
 	//r.send(data);
 }
 

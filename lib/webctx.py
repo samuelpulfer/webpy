@@ -398,10 +398,11 @@ class rest(webctx):
 	def POST(self, name):
 		web.header('Access-Control-Allow-Origin',      '*')
 		web.header('Access-Control-Allow-Credentials', 'true')
+		print web.data()
 		data = json.loads(web.data())
 		print data
 		#WTF ???
-		data = json.loads(data)
+		#data = json.loads(data)
 		if name == "":
 			return testinterface.dosomething(data)
 		else:			
@@ -413,4 +414,6 @@ class rest(webctx):
 	def OPTIONS(self, name):
 		web.header('Access-Control-Allow-Origin',      '*')
 		web.header('Access-Control-Allow-Credentials', 'true')
+		web.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+		web.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
 		

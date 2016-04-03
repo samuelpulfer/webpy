@@ -12,6 +12,7 @@ import usbauth
 import hashlib
 import sqlite3
 import testinterface
+import docrest
 import pprint
 import mimerender
 import dicttoxml
@@ -398,18 +399,19 @@ class rest(webctx):
 	def POST(self, name):
 		web.header('Access-Control-Allow-Origin',      '*')
 		web.header('Access-Control-Allow-Credentials', 'true')
-		print web.data()
 		data = json.loads(web.data())
+		print name
 		print data
 		#WTF ???
 		#data = json.loads(data)
 		if name == "":
 			return testinterface.dosomething(data)
-		else:			
-			response = dict(path=dict(),message=dict())
-			response['message'] = data
-			response['path'] = name
-			return response
+		else:
+			return docrest.doit(data, name)
+			#response = dict(path=dict(),message=dict())
+			#response['message'] = data
+			#response['path'] = name
+			#return response
 			
 	def OPTIONS(self, name):
 		web.header('Access-Control-Allow-Origin',      '*')
